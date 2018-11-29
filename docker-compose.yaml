@@ -1,0 +1,64 @@
+version: "3"
+services:
+  consul:
+    image: consul
+    container_name: consul.server
+    command: agent -server -bind 0.0.0.0 -client 0.0.0.0 -bootstrap-expect=1
+    volumes:
+      - ./etc/consul.server/config:/consul/config
+    ports:
+      - "8300:8300"
+      - "8500:8500"
+      - "8400:8400"
+      - "8600:8600/udp"
+    networks:
+        embed-mapper:
+          ipv4_address: 172.31.0.2
+  postgres:
+    build: .
+    container_name: postgres
+    hostname: postgres.db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/volumes/configs:/etc/psql/
+      - ./postgres/volumes/data:/var/lib/psql/
+      - ./postgres/volumes/logs:/var/log/psql/
+    environment:
+      POSTGRES_ROOT_PASSWORD: admin
+      POSTGRES_USER: suresh
+      POSTGRES_PASSWORD: 123qwe!@#QWE
+      POSTGRES_DB: relayr_greetings
+      CONSUL_HOST: 172.31.0.2
+    depends_on:
+      - consul
+    networks:
+        embed-mapper:
+          ipv4_address: 172.31.0.3
+  web:
+    build: 
+      dockerfile: Dockerfile.web
+      context: .
+    container_name: django_Web
+    hostname: djnago.web
+    environment:
+      CONSUL_HOST: 172.31.0.2
+    command: python3 manage.py runserver 0.0.0.0:8000
+
+    volumes:
+      - .:/code
+    ports:
+      - "8080:8000"
+    depends_on:
+      - postgres
+    networks:
+        embed-mapper:
+          ipv4_address: 172.31.0.4
+networks:
+  embed-mapper:
+      driver: bridge
+      ipam:
+        config:
+        - subnet: 172.31.0.0/24
+
+
