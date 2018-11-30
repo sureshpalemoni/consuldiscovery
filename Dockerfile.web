@@ -5,7 +5,7 @@ WORKDIR /code
 ADD requirements.txt /code/
 RUN pip install -U -r requirements.txt
 ADD manage.py .
-ADD webapp .
+ADD webapptest .
 
 RUN apt-get update && apt-get install -y unzip
 
