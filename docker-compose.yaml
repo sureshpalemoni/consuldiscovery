@@ -14,9 +14,9 @@ services:
     networks:
         embed-mapper:
           ipv4_address: 172.31.0.2
-  postgres:
+  postgresdb:
     build: .
-    container_name: postgres
+    container_name: postgresdb
     hostname: postgres.db
     ports:
       - "5432:5432"
@@ -39,18 +39,19 @@ services:
     build: 
       dockerfile: Dockerfile.web
       context: .
+    restart: on-failure
     container_name: django_Web
     hostname: djnago.web
     environment:
       CONSUL_HOST: 172.31.0.2
-    command: python3 manage.py runserver 0.0.0.0:8000
-
     volumes:
       - .:/code
     ports:
       - "8080:8000"
+    command: sh -c 'python3 manage.py runserver 0.0.0.0:8000'
     depends_on:
-      - postgres
+      - consul
+      - postgresdb
     networks:
         embed-mapper:
           ipv4_address: 172.31.0.4
