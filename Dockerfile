@@ -12,7 +12,7 @@ RUN cd /bin && \
 
 ADD postgres.json /etc/consul.d/postgres.json
 COPY postgres_init.sh /docker-entrypoint-initdb.d/10-postgres_init.sh
-#COPY consulagent_join.sh /docker-entrypoint-initdb.d/20-consulagent_join.sh
+COPY consulagent_join.sh /docker-entrypoint-initdb.d/20-consulagent_join.sh
 
 RUN rm /docker-entrypoint.sh
 COPY docker-entrypoint.sh /
